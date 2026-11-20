@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gym Membership System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f4f6f9; }
+    .navbar { background: #1f2937; }
+    .stat-card { border: 0; border-radius: 14px; color: #fff; }
+    .bg-grad1 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .bg-grad2 { background: linear-gradient(135deg, #10b981, #059669); }
+    .bg-grad3 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .bg-grad4 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .card { border: 0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+    .nav-link { cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<!-- Navigation bar -->
+<nav class="navbar navbar-dark navbar-expand-md sticky-top">
+  <div class="container">
+    <span class="navbar-brand fw-bold"><i class="bi bi-lightning-charge-fill text-warning"></i> IronFit Gym</span>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" onclick="show('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="show('members')"><i class="bi bi-people"></i> Members</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="show('plans')"><i class="bi bi-card-checklist"></i> Plans</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="show('payments')"><i class="bi bi-cash-coin"></i> Payments</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="show('audit')"><i class="bi bi-journal-text"></i> Audit Log</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+
+  <!-- DASHBOARD -->
+  <section id="dashboard">
+    <h4 class="mb-3">Dashboard</h4>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="card stat-card bg-grad1 p-3"><small>Total Members</small><h2 id="sTotal">0</h2></div></div>
+      <div class="col-6 col-lg-3"><div class="card stat-card bg-grad2 p-3"><small>Active</small><h2 id="sActive">0</h2></div></div>
+      <div class="col-6 col-lg-3"><div class="card stat-card bg-grad3 p-3"><small>Expired</small><h2 id="sExpired">0</h2></div></div>
+      <div class="col-6 col-lg-3"><div class="card stat-card bg-grad4 p-3"><small>This Month Income</small><h2 id="sIncome">Rs. 0</h2></div></div>
+    </div>
+    <div class="row g-3">
+      <div class="col-lg-6">
+        <div class="card p-3">
+          <h6><i class="bi bi-alarm text-danger"></i> Expiring in 7 days</h6>
+          <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Name</th><th>Plan</th><th>Expiry</th></tr></thead><tbody id="expiringBody"></tbody></table></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card p-3">
+          <h6><i class="bi bi-bar-chart text-success"></i> Monthly Revenue</h6>
+          <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Month</th><th>Payments</th><th>Revenue</th></tr></thead><tbody id="revenueBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMBERS -->
+  <section id="members" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Members</h4>
+      <button class="btn btn-primary" onclick="openMemberModal()"><i class="bi bi-plus-lg"></i> Add Member</button>
+    </div>
+    <div class="card p-3">
+      <!-- Search and filter -->
+      <div class="row g-2 mb-3">
+        <div class="col-md-8">
+          <input id="searchBox" class="form-control" placeholder="Search by name, email or phone..." oninput="renderMembers()">
+        </div>
+        <div class="col-md-4">
+          <select id="statusFilter" class="form-select" onchange="renderMembers()">
+            <option value="">All statuses</option>
+            <option value="Active">Active</option>
+            <option value="Expired">Expired</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Plan</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
+          <tbody id="membersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANS -->
+  <section id="plans" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Plans</h4>
+      <button class="btn btn-primary" onclick="openPlanModal()"><i class="bi bi-plus-lg"></i> Add Plan</button>
+    </div>
+    <div class="card p-3">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Name</th><th>Price</th><th>Duration (months)</th><th></th></tr></thead>
+          <tbody id="plansBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section id="payments" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Payments</h4>
+      <button class="btn btn-success" onclick="openPaymentModal()"><i class="bi bi-cash"></i> New Payment</button>
+    </div>
+    <div class="card p-3">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Date</th><th>Member</th><th>Plan</th><th>Amount</th></tr></thead>
+          <tbody id="paymentsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUDIT LOG -->
+  <section id="audit" class="d-none">
+    <h4 class="mb-3">Audit Log (latest 20)</h4>
+    <div class="card p-3">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Time</th><th>Action</th><th>Collection</th><th>Details</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MEMBER MODAL -->
+<div class="modal fade" id="memberModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="memberTitle">Add Member</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="mId">
+    <div class="mb-3"><label class="form-label">Name</label><input id="mName" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Email</label><input id="mEmail" type="email" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Phone</label><input id="mPhone" class="form-control"></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-primary" onclick="saveMember()">Save</button></div>
+</div></div></div>
+
+<!-- PLAN MODAL -->
+<div class="modal fade" id="planModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="planTitle">Add Plan</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <input type="hidden" id="pId">
+    <div class="mb-3"><label class="form-label">Plan Name</label><input id="pName" class="form-control" placeholder="Monthly"></div>
+    <div class="mb-3"><label class="form-label">Price (Rs.)</label><input id="pPrice" type="number" class="form-control"></div>
+    <div class="mb-3"><label class="form-label">Duration (months)</label><input id="pDuration" type="number" class="form-control"></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-primary" onclick="savePlan()">Save</button></div>
+</div></div></div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title">New Payment</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body">
+    <div class="mb-3"><label class="form-label">Member</label><select id="payMember" class="form-select"></select></div>
+    <div class="mb-3"><label class="form-label">Plan</label><select id="payPlan" class="form-select"></select></div>
+    <div class="alert alert-info small mb-0">The member's expiry date and status will be updated automatically after payment.</div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-success" onclick="savePayment()">Pay</button></div>
+</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API = '/api';
+const fmtDate = d => d ? new Date(d).toLocaleDateString() : '-';
+const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Helper: send a request to the backend API and return the JSON response
+async function api(path, method = 'GET', body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json();
+  if (!res.ok) { alert(data.error || 'Error'); throw new Error(data.error); }
+  return data;
+}
+
+// Show one section and hide the others, then load its data
+function show(id) {
+  ['dashboard','members','plans','payments','audit'].forEach(s => document.getElementById(s).classList.add('d-none'));
+  document.getElementById(id).classList.remove('d-none');
+  ({ dashboard: loadDashboard, members: loadMembers, plans: loadPlans, payments: loadPayments, audit: loadAudit })[id]();
+}
+
+/* ---------- DASHBOARD ---------- */
+async function loadDashboard() {
+  // Summary cards
+  const s = await api('/reports/summary');
+  sTotal.textContent = s.totalMembers;
+  sActive.textContent = s.activeMembers;
+  sExpired.textContent = s.expiredMembers;
+  sIncome.textContent = 'Rs. ' + s.monthlyIncome.toLocaleString();
+
+  // Members expiring within 7 days
+  const exp = await api('/reports/expiring-soon');
+  expiringBody.innerHTML = exp.length
+    ? exp.map(m => `<tr><td>${m.name}</td><td>${m.plan ? m.plan.name : '-'}</td><td>${fmtDate(m.expiryDate)}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="text-muted">No members expiring soon</td></tr>';
+
+  // Monthly revenue report
+  const rev = await api('/reports/monthly-revenue');
+  revenueBody.innerHTML = rev.length
+    ? rev.map(r => `<tr><td>${monthNames[r._id.month]} ${r._id.year}</td><td>${r.paymentCount}</td><td>Rs. ${r.totalRevenue.toLocaleString()}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="text-muted">No data yet</td></tr>';
+}
+
+/* ---------- MEMBERS ---------- */
+let allMembers = [];
+
+async function loadMembers() {
+  allMembers = await api('/members');
+  renderMembers();
+}
+
+// Filter members by search text and status, then draw the table
+function renderMembers() {
+  const q = searchBox.value.toLowerCase();
+  const st = statusFilter.value;
+  const list = allMembers.filter(m =>
+    (!st || m.status === st) &&
+    (m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || m.phone.includes(q))
+  );
+  membersBody.innerHTML = list.map(m => `
+    <tr>
+      <td>${m.name}</td><td>${m.email}</td><td>${m.phone}</td>
+      <td>${m.plan ? m.plan.name : '-'}</td>
+      <td>${fmtDate(m.expiryDate)}</td>
+      <td><span class="badge ${m.status === 'Active' ? 'bg-success' : 'bg-danger'}">${m.status}</span></td>
+      <td class="text-end text-nowrap">
+        <button class="btn btn-sm btn-outline-primary" onclick='editMember(${JSON.stringify(m)})'><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="delMember('${m._id}')"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="7" class="text-muted">No members found</td></tr>';
+}
+function openMemberModal() {
+  mId.value = mName.value = mEmail.value = mPhone.value = '';
+  memberTitle.textContent = 'Add Member';
+  new bootstrap.Modal(memberModal).show();
+}
+function editMember(m) {
+  mId.value = m._id; mName.value = m.name; mEmail.value = m.email; mPhone.value = m.phone;
+  memberTitle.textContent = 'Edit Member';
+  new bootstrap.Modal(memberModal).show();
+}
+async function saveMember() {
+  const body = { name: mName.value, email: mEmail.value, phone: mPhone.value };
+  if (mId.value) await api('/members/' + mId.value, 'PUT', body);
+  else await api('/members', 'POST', body);
+  bootstrap.Modal.getInstance(memberModal).hide();
+  loadMembers();
+}
+async function delMember(id) {
+  if (!confirm('Delete this member and their payments?')) return;
+  await api('/members/' + id, 'DELETE');
+  loadMembers();
+}
+
+/* ---------- PLANS ---------- */
+async function loadPlans() {
+  const list = await api('/plans');
+  plansBody.innerHTML = list.map(p => `
+    <tr>
+      <td>${p.name}</td><td>Rs. ${p.price.toLocaleString()}</td><td>${p.durationMonths}</td>
+      <td class="text-end text-nowrap">
+        <button class="btn btn-sm btn-outline-primary" onclick='editPlan(${JSON.stringify(p)})'><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="delPlan('${p._id}')"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="4" class="text-muted">No plans yet</td></tr>';
+}
+function openPlanModal() {
+  pId.value = pName.value = pPrice.value = pDuration.value = '';
+  planTitle.textContent = 'Add Plan';
+  new bootstrap.Modal(planModal).show();
+}
+function editPlan(p) {
+  pId.value = p._id; pName.value = p.name; pPrice.value = p.price; pDuration.value = p.durationMonths;
+  planTitle.textContent = 'Edit Plan';
+  new bootstrap.Modal(planModal).show();
+}
+async function savePlan() {
+  const body = { name: pName.value, price: +pPrice.value, durationMonths: +pDuration.value };
+  if (pId.value) await api('/plans/' + pId.value, 'PUT', body);
+  else await api('/plans', 'POST', body);
+  bootstrap.Modal.getInstance(planModal).hide();
+  loadPlans();
+}
+async function delPlan(id) {
+  if (!confirm('Delete this plan?')) return;
+  await api('/plans/' + id, 'DELETE');
+  loadPlans();
+}
+
+/* ---------- AUDIT LOG ---------- */
+async function loadAudit() {
+  const logs = await api('/reports/audit-log');
+  auditBody.innerHTML = logs.map(l => `
+    <tr>
+      <td>${new Date(l.timestamp).toLocaleString()}</td>
+      <td><span class="badge bg-secondary">${l.action}</span></td>
+      <td>${l.collectionName}</td><td>${l.details}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="text-muted">No log entries yet</td></tr>';
+}
+
+/* ---------- PAYMENTS ---------- */
+async function loadPayments() {
+  const list = await api('/payments');
+  paymentsBody.innerHTML = list.map(p => `
+    <tr>
+      <td>${fmtDate(p.paymentDate)}</td>
+      <td>${p.member ? p.member.name : '(deleted)'}</td>
+      <td>${p.plan ? p.plan.name : '-'}</td>
+      <td>Rs. ${p.amount.toLocaleString()}</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="text-muted">No payments yet</td></tr>';
+}
+async function openPaymentModal() {
+  const [members, plans] = await Promise.all([api('/members'), api('/plans')]);
+  if (!members.length || !plans.length) return alert('Please add Members and Plans first!');
+  payMember.innerHTML = members.map(m => `<option value="${m._id}">${m.name}</option>`).join('');
+  payPlan.innerHTML = plans.map(p => `<option value="${p._id}">${p.name} - Rs. ${p.price}</option>`).join('');
+  new bootstrap.Modal(paymentModal).show();
+}
+async function savePayment() {
+  await api('/payments', 'POST', { member: payMember.value, plan: payPlan.value });
+  bootstrap.Modal.getInstance(paymentModal).hide();
+  loadPayments();
+}
+
+// Load the dashboard when the page opens
+show('dashboard');
+</script>
+</body>
+</html>
