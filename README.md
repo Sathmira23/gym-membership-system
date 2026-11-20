@@ -64,6 +64,29 @@ npm run dev
 
 Open http://localhost:3000
 
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Members (search & filter)
+![Members](screenshots/members.png)
+
+### Plans
+![Plans](screenshots/plans.png)
+
+### Payments
+![Payments](screenshots/payments.png)
+
+### Audit Log (written by triggers)
+![Audit Log](screenshots/audit-log.png)
+
+### Responsive (mobile view)
+<img src="screenshots/mobile01.png" width="300" alt="Mobile view">
+<img src="screenshots/mobile02.png" width="300" alt="Mobile view">
+
+
 ## 👤 Author
 
 **Sathmirra Jayawardhana**: [GitHub](https://github.com/Sathmira23) | [LinkedIn](https://www.linkedin.com/in/sathmira-jayawardhana)
